@@ -1,7 +1,7 @@
 (require 'package)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("gnu" . "https://elpa.gnu.org/packages/")))
+                         ("gnu" . "https://elpa.gnu.org/packages/")))
 
 (package-initialize)
 
@@ -92,7 +92,7 @@
   (setq eglot-events-buffer-config '(:size nil :format full))
   :config
   (add-to-list 'eglot-server-programs
-               '((c-mode c++-mode) . ("clangd")))
+               '((c-mode c++-mode c-ts-mode c++-ts-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs
                '(gdscript-mode . ("localhost" 6005))))
 
@@ -145,12 +145,28 @@
   :config
   (which-key-mode 1))
 
+(use-package yafolding
+  :ensure t
+  :hook (prog-mode . yafolding-mode)
+  :commands (yafolding-show-element
+             yafolding-hide-element
+             yafolding-toggle-element
+             yafolding-show-all
+             yafolding-hide-all)
+  :config
+  (with-eval-after-load 'evil
+    (define-key evil-normal-state-map "zo" #'yafolding-show-element)
+    (define-key evil-normal-state-map "zc" #'yafolding-hide-element)
+    (define-key evil-normal-state-map "za" #'yafolding-toggle-element)
+    (define-key evil-normal-state-map "zr" #'yafolding-show-all)
+    (define-key evil-normal-state-map "zm" #'yafolding-hide-all)))
+
 (use-package evil
   :ensure t
   :init
   (setq evil-want-integration t
-	evil-want-keybinding nil
-	evil-want-C-u-scroll t)
+        evil-want-keybinding nil
+        evil-want-C-u-scroll t)
   :config
   (evil-mode 1))
 
@@ -197,10 +213,10 @@
   :demand t
   :config
   (setq centaur-tabs-style "bar"
-	centaur-tabs-height 32
-	centaur-tabs-show-navigation-buttons t
-	centaur-tabs-set-modified-marker t
-	centaur-tabs-modified-marker "*")
+        centaur-tabs-height 32
+        centaur-tabs-show-navigation-buttons t
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-modified-marker "*")
   (centaur-tabs-mode 1))
 
 (use-package elcord
@@ -219,22 +235,22 @@
     :global-prefix "M-SPC")
 
   (my/leader-keys
-    "h"     '(:ignore t :which-key "help/emacs")
+    "h"      '(:ignore t :which-key "help/emacs")
     "hr" '((lambda () (interactive) (load-file user-init-file)) :which-key "reload config")
-    "f"     '(:ignore t :which-key "files")
+    "f"      '(:ignore t :which-key "files")
     "ff" '(find-file :which-key "find file")
-    "b"     '(:ignore t :which-key "buffers")
+    "b"      '(:ignore t :which-key "buffers")
     "bb" '(switch-to-buffer :which-key "switch buffer")
     "bk" '(kill-current-buffer :which-key "kill buffer")
-    "w"     '(:ignore t :which-key "windows")
+    "w"      '(:ignore t :which-key "windows")
     "wv" '(split-window-right :which-key "split vertical")
     "ws" '(split-window-below :which-key "split horizontal")
     "wc" '(delete-window :which-key "close window")
-    "e"     '(:ignore t :which-key "file tree")
+    "e"      '(:ignore t :which-key "file tree")
     "ee" '(treemacs :which-key "toggle tree")
     "ea" '(treemacs-add-project-to-workspace :which-key "add root dir")
     "er" '(treemacs-remove-project-from-workspace :which-key "remove root dir")
-    "t"     '(:ignore t :which-key "tabs")
+    "t"      '(:ignore t :which-key "tabs")
     "tn" '(centaur-tabs-forward :which-key "next tab")
     "tp" '(centaur-tabs-backward :which-key "previous tab")))
 
@@ -243,7 +259,7 @@
    '(cape catppuccin-theme centaur-tabs clang-format corfu elcord
 	  evil-collection evil-mc evil-multiedit gdscript-mode general
 	  highlight-indent-guides marginalia markdown-mode orderless
-	  treemacs-evil vertico)))
+	  treemacs-evil vertico yafolding)))
 
 (custom-set-faces
  )
