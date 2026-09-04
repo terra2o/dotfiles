@@ -187,6 +187,17 @@
   :config
   (evil-multiedit-default-keybinds))
 
+(use-package magit
+  :ensure t
+  :bind ("C-x g" . magit-status))
+
+(use-package diff-hl
+  :ensure t
+  :hook ((prog-mode text-mode) . turn-on-diff-hl-mode)
+  :config
+  ;; update diff status dynamically in uncommitted buffers without waiting for save
+  (diff-hl-flydiff-mode 1))
+
 (use-package treemacs
   :ensure t
   :defer t
@@ -251,14 +262,27 @@
     "er" '(treemacs-remove-project-from-workspace :which-key "remove root dir")
     "t"      '(:ignore t :which-key "tabs")
     "tn" '(centaur-tabs-forward :which-key "next tab")
-    "tp" '(centaur-tabs-backward :which-key "previous tab")))
+    "tp" '(centaur-tabs-backward :which-key "previous tab")
+    "g"      '(:ignore t :which-key "git")
+    "gg" '(magit-status :which-key "status")
+    "gb" '(magit-blame :which-key "blame")
+    "gl" '(magit-log-buffer-file :which-key "file log")
+    "gd" '(magit-diff-dwim :which-key "diff")))
 
 (custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(cape catppuccin-theme centaur-tabs clang-format corfu elcord
+   '(cape catppuccin-theme centaur-tabs clang-format corfu diff-hl elcord
 	  evil-collection evil-mc evil-multiedit gdscript-mode general
-	  highlight-indent-guides marginalia markdown-mode orderless
-	  treemacs-evil vertico yafolding)))
+	  highlight-indent-guides magit marginalia markdown-mode
+	  orderless treemacs-evil vertico yafolding)))
 
 (custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  )
