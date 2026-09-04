@@ -125,15 +125,6 @@
   :init
   (marginalia-mode))
 
-(use-package highlight-indent-guides
-  :ensure t
-  :hook (prog-mode . highlight-indent-guides-mode)
-  :config
-  (setq highlight-indent-guides-method 'fill)
-  (setq highlight-indent-guides-auto-odd-face-perc 20)
-  (setq highlight-indent-guides-auto-even-face-perc 35)
-  (setq highlight-indent-guides-auto-character-face-perc 15))
-
 (use-package catppuccin-theme
   :ensure t
   :config
@@ -199,10 +190,18 @@
 (use-package treemacs
   :ensure t
   :defer t
+  :bind ("M-0" . treemacs-select-window)
+  :custom
+  (treemacs-no-png-images t)
   :config
   (setq treemacs-width 30)
-  :bind
-  ("M-0" . treemacs-select-window))
+
+  (unless (listp treemacs-ignored-file-predicates)
+    (setq treemacs-ignored-file-predicates nil))
+
+  (add-to-list 'treemacs-ignored-file-predicates
+               (lambda (file _)
+                 (string-suffix-p ".gd.uid" file))))
 
 (use-package treemacs-evil
   :after (treemacs evil)
