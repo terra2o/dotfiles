@@ -20,6 +20,11 @@
 (scroll-bar-mode -1)
 (global-display-line-numbers-mode t)
 
+(global-set-key (kbd "C-+") #'text-scale-increase)
+(global-set-key (kbd "C-=") #'text-scale-increase)
+(global-set-key (kbd "C--") #'text-scale-decrease)
+(global-set-key (kbd "C-0") (lambda () (interactive) (text-scale-increase 0)))
+
 (use-package server
   :config
   (unless (server-running-p)
