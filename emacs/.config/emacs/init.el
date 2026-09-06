@@ -36,16 +36,10 @@
   :init
   (with-eval-after-load 'cc-mode
     (define-key c-mode-base-map (kbd "C-c f") #'clang-format-region)
-    (define-key c-mode-base-map (kbd "C-c b") #'clang-format-buffer))
-  :hook (c-mode-common . (lambda ()
-                           (add-hook 'before-save-hook #'clang-format-buffer nil t))))
+    (define-key c-mode-base-map (kbd "C-c b") #'clang-format-buffer)))
 
 (use-package cc-mode
-  :mode ("\\.cppm\\'" . c++-mode)
-  :config
-  (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs
-                 '((c-mode c++-mode) . ("clangd")))))
+  :mode ("\\.cppm\\'" . c++-mode))
 
 (use-package markdown-mode
   :ensure t
@@ -89,21 +83,33 @@
   :mode ("\\.cppm\\'" . c++-ts-mode)
   :init
   (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode)))
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  :custom
+  (c-ts-mode-indent-style 'bsd)
+  (c-ts-mode-indent-offset 4))
 
 (use-package eglot
-  :hook (prog-mode . eglot-ensure)
+  :hook ((c-mode c++-mode c-ts-mode c++-ts-mode) . eglot-ensure)
   :init
   (setq eglot-events-buffer-config '(:size nil :format full))
   :config
   (add-to-list 'eglot-server-programs
-               '((c-mode c++-mode c-ts-mode c++-ts-mode) . ("clangd")))
+               '((c-mode c++-mode c-ts-mode c++-ts-mode)
+                 . ("clangd")))
+
   (add-to-list 'eglot-server-programs
                '(gdscript-mode . ("localhost" 6005))))
 
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (add-hook 'before-save-hook #'eglot-format-buffer nil t)))
+(with-eval-after-load 'eglot
+  (define-key eglot-mode-map (kbd "C-c b") #'eglot-format-buffer))
+
+(defun my/c-mode-setup ()
+  (add-hook 'before-save-hook #'eglot-format-buffer nil t))
+
+(add-hook 'c-mode-hook #'my/c-mode-setup)
+(add-hook 'c++-mode-hook #'my/c-mode-setup)
+(add-hook 'c-ts-mode-hook #'my/c-mode-setup)
+(add-hook 'c++-ts-mode-hook #'my/c-mode-setup)
 
 (use-package cape
   :ensure t
