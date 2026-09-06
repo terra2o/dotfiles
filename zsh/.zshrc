@@ -16,7 +16,6 @@ export EDITOR='emacs'
 export VISUAL='emacs'
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
 
 # aliases
 alias rm='rm -i'
