@@ -136,11 +136,15 @@
   :init
   (marginalia-mode))
 
-(use-package catppuccin-theme
-  :ensure t
-  :config
-  (setq catppuccin-flavor 'mocha)
-  (load-theme 'catppuccin t))
+;; (use-package catppuccin-theme
+  ;; :ensure t
+  ;; :config
+  ;; (setq catppuccin-flavor 'mocha)
+  ;; (load-theme 'catppuccin t))
+
+(add-to-list 'custom-theme-load-path "~/.config/emacs/themes/")
+(load-theme 'noctalia t)
+(add-hook 'after-init-hook (lambda () (load-theme 'noctalia t)))
 
 (use-package which-key
   :ensure t
@@ -188,6 +192,15 @@
   :ensure t
   :config
   (evil-collection-init))
+
+(use-package evil-nerd-commenter
+  :ensure t
+  :after evil
+  :config
+  (general-def
+    :states '(normal visual)
+    "gcc" 'evilnc-comment-or-uncomment-lines
+    "gc"  'evilnc-comment-operator))
 
 (use-package iedit
   :ensure t)
@@ -287,9 +300,10 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(cape catppuccin-theme centaur-tabs clang-format corfu diff-hl elcord
-	  evil-collection evil-mc evil-multiedit gdscript-mode general
-	  highlight-indent-guides magit marginalia markdown-mode
-	  orderless treemacs-evil vertico yafolding)))
+	  evil-collection evil-mc evil-multiedit evil-nerd-commenter
+	  gdscript-mode general highlight-indent-guides magit
+	  marginalia markdown-mode orderless treemacs-evil vertico
+	  yafolding)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
