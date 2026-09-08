@@ -1,6 +1,10 @@
 environment {
    QT_QPA_PLATFORMTHEME "qt6ct"
 }
+
+debug {
+   render-drm-device "/dev/dri/renderD128"
+}
 input {
     keyboard {
         xkb {
@@ -30,7 +34,7 @@ input {
 }
 
 layout {
-    gaps 4
+    gaps 5
     center-focused-column "never"
 
     preset-column-widths {
@@ -98,15 +102,12 @@ window-rule {
 window-rule {
     match app-id=r#"^emacs"#
 
-    opacity 0.90
+    opacity 1.00
     draw-border-with-background false
-    background-effect {
-	    blur true
-	}
 }
 
 window-rule {
-    geometry-corner-radius 15
+    geometry-corner-radius 0
     clip-to-geometry true
     draw-border-with-background false
 }
