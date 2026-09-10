@@ -8,6 +8,8 @@ debug {
 input {
     keyboard {
         xkb {
+	    layout "us, tr"
+	    options "grp:alt_shift_toggle"
         }
         numlock
     }
