@@ -15,7 +15,7 @@
 (setq inhibit-startup-message t
       make-backup-files nil)
 
-(set-face-attribute 'default nil :font "JetBrains Mono-14:weight=regular")
+(set-face-attribute 'default nil :font "JetBrains Mono-14:weight=semibold")
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -36,6 +36,8 @@
   :config
   (unless (server-running-p)
     (server-start)))
+
+
 
 (use-package clang-format
   :ensure t
@@ -182,77 +184,41 @@
         aperture-child-frame-border-width 1
         aperture-child-frame-parameters nil))
 
-(use-package catppuccin-theme
+(use-package nerd-icons
   :ensure t
-  :demand t
-  :init
-  (setq catppuccin-flavor 'mocha)
-  ;; soft charcoal background avoids halation while maintaining crisp luminance
-  (setq catppuccin-mocha-color-overrides
-        '((base     . "#13131a")
-          (mantle   . "#0f0f15")
-          (crust    . "#0a0a0e")
-          (surface0 . "#1e1e28")
-          (surface1 . "#2a2a38")
-          (surface2 . "#3b3b4e")
-          (overlay0 . "#6c7086")
-          (overlay1 . "#7f849c")
-          (overlay2 . "#9399b2")
-          (text     . "#dcdfe7")
-          (subtext0 . "#a6adc8")
-          (subtext1 . "#bac2de")))
+  :custom
+  (nerd-icons-font-family "Symbols Nerd Font Mono"))
+
+(use-package autothemer :ensure t)
+(use-package doom-themes
+  :ensure t
+  :custom
+  (doom-themes-enable-bold t)
+  (doom-themes-enable-italic t)
+  (doom-themes-treemacs-theme "doom-gruvbox")
   :config
-  (load-theme 'catppuccin :no-confirm))
+  (load-theme 'doom-one t)
 
-(custom-set-faces
- ;; restful semantic hierarchy: high contrast without optical glare
- '(default ((t (:background "#13131a" :foreground "#dcdfe7"))))
- '(font-lock-keyword-face ((t (:foreground "#f38ba8" :weight bold))))
- '(font-lock-type-face ((t (:foreground "#fab387" :weight bold))))
- '(font-lock-function-call-face ((t (:foreground "#89b4fa"))))
- '(font-lock-function-name-face ((t (:foreground "#89b4fa" :weight bold))))
- '(font-lock-property-name-face ((t (:foreground "#94e2d5"))))
- '(font-lock-property-use-face ((t (:foreground "#94e2d5"))))
- '(font-lock-variable-name-face ((t (:foreground "#cdd6f4"))))
- '(font-lock-constant-face ((t (:foreground "#f9e2af" :weight bold))))
- '(font-lock-number-face ((t (:foreground "#fab387"))))
- '(font-lock-string-face ((t (:foreground "#a6e3a1"))))
- '(font-lock-comment-face ((t (:foreground "#6c7086" :slant italic))))
- '(font-lock-operator-face ((t (:foreground "#cba6f7"))))
- '(font-lock-builtin-face ((t (:foreground "#cba6f7" :weight bold))))
+  (doom-themes-visual-bell-config)
+  (doom-themes-neotree-config)
+  (doom-themes-treemacs-config)
+  (doom-themes-org-config))
 
- ;; anchored current line and legible margins
- '(hl-line ((t (:background "#1c1d28"))))
- '(line-number ((t (:background "#13131a" :foreground "#45475a"))))
- '(line-number-current-line ((t (:background "#1c1d28" :foreground "#89b4fa" :weight bold))))
- '(mode-line ((t (:background "#1a1b24" :foreground "#cdd6f4" :box (:line-width 1 :color "#2a2a38")))))
- '(mode-line-inactive ((t (:background "#101017" :foreground "#585b70" :box (:line-width 1 :color "#181822"))))))
-
+(add-to-list 'custom-theme-load-path "~/.config/emacs/themes/")
+(load-theme 'doom-gruvbox t)
 (global-hl-line-mode 1)
 
-;; indent guides highlight active scope without visual noise
 (use-package highlight-indent-guides
   :ensure t
   :hook (prog-mode . highlight-indent-guides-mode)
   :custom
   (highlight-indent-guides-method 'character)
   (highlight-indent-guides-responsive 'top)
-  (highlight-indent-guides-delay 0.05)
-  :config
-  (set-face-foreground 'highlight-indent-guides-character-face "#222330")
-  (set-face-foreground 'highlight-indent-guides-top-character-face "#585b70"))
+  (highlight-indent-guides-delay 0.05))
 
-;; soft, desaturated delimiters prevent the "christmas tree" effect
 (use-package rainbow-delimiters
   :ensure t
-  :hook (prog-mode . rainbow-delimiters-mode)
-  :config
-  (set-face-attribute 'rainbow-delimiters-depth-1-face nil :foreground "#cba6f7")
-  (set-face-attribute 'rainbow-delimiters-depth-2-face nil :foreground "#89b4fa")
-  (set-face-attribute 'rainbow-delimiters-depth-3-face nil :foreground "#94e2d5")
-  (set-face-attribute 'rainbow-delimiters-depth-4-face nil :foreground "#fab387")
-  (set-face-attribute 'rainbow-delimiters-depth-5-face nil :foreground "#f38ba8")
-  (set-face-attribute 'rainbow-delimiters-depth-6-face nil :foreground "#f9e2af"))
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package which-key
   :ensure t
@@ -341,11 +307,9 @@
   :ensure t
   :defer t
   :bind ("M-0" . treemacs-select-window)
-  :custom
-  (treemacs-no-png-images t)
   :config
-  (setq treemacs-width 30)
-
+  (setq treemacs-width 30
+	treemacs-no-png-images t)
   (unless (listp treemacs-ignored-file-predicates)
     (setq treemacs-ignored-file-predicates nil))
 
@@ -430,10 +394,15 @@
     "gd"  '(magit-diff-dwim :which-key "diff")))
 
 (custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(cape catppuccin-theme centaur-tabs clang-format consult corfu
-      diff-hl diminish elcord evil-collection evil-mc
-      evil-multiedit evil-nerd-commenter gdscript-mode general
-      highlight-indent-guides hl-todo ligature magit marginalia
-      markdown-mode orderless rainbow-delimiters treemacs-evil
-      vertico yafolding)))
+   '(autothemer cape centaur-tabs clang-format consult corfu diff-hl
+        diminish elcord evil-collection evil-mc evil-multiedit
+        evil-nerd-commenter gdscript-mode general
+        highlight-indent-guides hl-todo ligature magit
+        marginalia markdown-mode orderless rainbow-delimiters
+        treemacs-evil vertico
+        yafolding)))
