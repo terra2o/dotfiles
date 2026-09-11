@@ -35,7 +35,8 @@
 (use-package server
   :config
   (unless (server-running-p)
-    (server-start)))
+    (server-start))
+  (add-hook 'server-switch-hook #'raise-frame))
 
 
 
@@ -309,7 +310,8 @@
   :bind ("M-0" . treemacs-select-window)
   :config
   (setq treemacs-width 30
-	treemacs-no-png-images t)
+	treemacs-no-png-images t
+	treemacs-move-files-by-mouse-dragging nil)
   (unless (listp treemacs-ignored-file-predicates)
     (setq treemacs-ignored-file-predicates nil))
 
