@@ -21,10 +21,8 @@
 (scroll-bar-mode -1)
 (global-display-line-numbers-mode t)
 
-;; generous line height gives multi-line blocks breathing room
 (setq-default line-spacing 0.2)
 
-;; balance vertical column alignment
 (set-fringe-mode '(12 . 12))
 
 (global-set-key (kbd "C-+") #'text-scale-increase)
@@ -89,8 +87,16 @@
   :config
   (editorconfig-mode 1))
 
-;; enable maximum tree-sitter scope recognition globally
 (setq treesit-font-lock-level 4)
+
+(with-eval-after-load 'treesit
+  (defun my/treesit-font-lock-markers-to-pos (orig-fn start end &rest args)
+    (apply orig-fn
+           (if (markerp start) (marker-position start) start)
+           (if (markerp end) (marker-position end) end)
+           args))
+  (advice-add 'treesit-font-lock-fontify-region :around #'my/treesit-font-lock-markers-to-pos))
+
 
 (use-package c-ts-mode
   :mode ("\\.cppm\\'" . c++-ts-mode)
@@ -101,7 +107,6 @@
   (c-ts-mode-indent-style 'bsd)
   (c-ts-mode-indent-offset 4))
 
-;; strip noisy mode-line lighters that truncate important context
 (use-package diminish
   :ensure t
   :config
@@ -116,8 +121,7 @@
   :init
   (setq eglot-events-buffer-config '(:size nil :format full))
   :config
-  ;; strip blurry inline hints to eliminate irregular horizontal spacing
-  (setq-default eglot-ignored-server-capabilities '(:inlayHintProvider))
+  (setq-default eglot-ignored-server-capabilities '(:inlayHintProvider :semanticTokensProvider))
 
   (add-to-list 'eglot-server-programs
                '((c-mode c++-mode c-ts-mode c++-ts-mode)
