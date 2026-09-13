@@ -244,12 +244,16 @@
     (define-key evil-normal-state-map "zr" #'yafolding-show-all)
     (define-key evil-normal-state-map "zm" #'yafolding-hide-all)))
 
+(use-package undo-fu
+  :ensure t)
+
 (use-package evil
   :ensure t
   :init
   (setq evil-want-integration t
         evil-want-keybinding nil
-        evil-want-C-u-scroll t)
+        evil-want-C-u-scroll t
+        evil-undo-system 'undo-fu)
   :config
   (evil-mode 1))
 
@@ -404,9 +408,14 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(autothemer cape centaur-tabs clang-format consult corfu diff-hl
-        diminish elcord evil-collection evil-mc evil-multiedit
-        evil-nerd-commenter gdscript-mode general
-        highlight-indent-guides hl-todo ligature magit
-        marginalia markdown-mode orderless rainbow-delimiters
-        treemacs-evil vertico
-        yafolding)))
+		diminish elcord evil-collection evil-mc evil-multiedit
+		evil-nerd-commenter gdscript-mode general
+		highlight-indent-guides hl-todo ligature magit
+		marginalia markdown-mode orderless rainbow-delimiters
+		treemacs-evil undo-fu vertico yafolding)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
