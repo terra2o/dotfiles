@@ -15,7 +15,7 @@
 (setq inhibit-startup-message t
       make-backup-files nil)
 
-(set-face-attribute 'default nil :font "JetBrains Mono-14:weight=semibold")
+(set-face-attribute 'default nil :font "JetBrains Mono-14")
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -35,8 +35,6 @@
   (unless (server-running-p)
     (server-start))
   (add-hook 'server-switch-hook #'raise-frame))
-
-
 
 (use-package clang-format
   :ensure t
