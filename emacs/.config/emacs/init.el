@@ -15,6 +15,8 @@
 (setq inhibit-startup-message t
       make-backup-files nil)
 
+(desktop-save-mode 1)
+
 (set-face-attribute 'default nil :font "JetBrains Mono-14")
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -31,6 +33,7 @@
 (global-set-key (kbd "C-0") (lambda () (interactive) (text-scale-increase 0)))
 
 (use-package server
+  :demand t
   :config
   (unless (server-running-p)
     (server-start))
@@ -59,7 +62,7 @@
   :mode "\\.gd\\'"
   :hook (gdscript-mode . eglot-ensure)
   :custom
-  (gdscript-eglot-version 4.6)
+  (gdscript-eglot-version "4.7.2")
   :config
   (setq gdscript-godot-executable "/home/terra/.local/bin/Godot_v4.7.2-stable_linux.x86_64")
   (setq gdscript-gdformat-save-and-format t)
@@ -201,11 +204,9 @@
   (doom-themes-treemacs-theme "doom-gruvbox")
   :config
   (load-theme 'doom-one t)
-
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
-  (doom-themes-treemacs-config)
-  (doom-themes-org-config))
+  (doom-themes-treemacs-config))
 
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes/")
 (load-theme 'doom-gruvbox t)
@@ -360,6 +361,38 @@
   :config
   (global-hl-todo-mode 1))
 
+(use-package org
+  :ensure nil
+  :defer nil
+  :hook ((org-mode . visual-line-mode)
+         (org-mode . org-indent-mode))
+  :init
+  ;; stop the org element parser cache from throwing errors in active buffers
+  (setq org-element-use-cache nil)
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
+  :custom
+  (org-directory "~/org")
+  (org-default-notes-file (concat org-directory "/inbox.org"))
+  (org-ellipsis " ▾")
+  (org-hide-emphasis-markers t)
+  (org-startup-folded 'content)
+  (org-log-done 'time)
+  :config
+  (evil-define-key '(normal visual) org-mode-map
+    (kbd "TAB") #'org-cycle
+    (kbd "<tab>") #'org-cycle
+    (kbd "t") #'org-todo
+    (kbd "T") #'org-todo))
+
+(use-package org-modern
+  :ensure t
+  :after org
+  :hook (org-mode . org-modern-mode)
+  :custom
+  (org-modern-star '("◉" "○" "◈" "◇"))
+  (org-modern-table nil))
+
 (use-package general
   :ensure t
   :demand t
@@ -399,7 +432,13 @@
     "gg"  '(magit-status :which-key "status")
     "gb"  '(magit-blame :which-key "blame")
     "gl"  '(magit-log-buffer-file :which-key "file log")
-    "gd"  '(magit-diff-dwim :which-key "diff")))
+    "gd"  '(magit-diff-dwim :which-key "diff")
+    "o"   '(:ignore t :which-key "org")
+    "oa"  '(org-agenda :which-key "agenda")
+    "oc"  '(org-capture :which-key "capture")
+    "ol"  '(org-store-link :which-key "store link")
+    "ot"  '(org-todo :which-key "todo state")
+    "oe"  '(org-export-dispatch :which-key "export")))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
