@@ -23,6 +23,7 @@ alias chomd='chmod'
 alias celar='clear'
 alias claer='clear'
 alias clera='clear'
+alias vim='vimx'
 
 # run fetch (https://www.github.com/terra2o/fetch) when sourced
 fetch
