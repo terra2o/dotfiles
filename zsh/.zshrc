@@ -16,6 +16,7 @@ export EDITOR='emacs'
 export VISUAL='emacs'
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="/usr/libexec/lua-language-server:$PATH"
 
 # aliases
 alias rm='rm -i'
