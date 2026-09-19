@@ -28,3 +28,4 @@ alias vim='vimx'
 
 # run fetch (https://www.github.com/terra2o/fetch) when sourced
 fetch
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
