@@ -62,10 +62,11 @@ layout {
     }
 
     shadow {
-        softness 30
-        spread 5
-        offset x=0 y=5
-        color "#0007"
+        on
+        softness 5
+        spread 0
+        offset x=10 y=10
+        color "#000000e6"
     }
 
     struts {
@@ -100,13 +101,6 @@ window-rule {
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
 
     block-out-from "screen-capture"
-}
-
-window-rule {
-    match app-id=r#"^emacs"#
-
-    opacity 1.00
-    draw-border-with-background false
 }
 
 window-rule {
@@ -278,4 +272,3 @@ binds {
     Mod+Shift+P { power-off-monitors; }
 }
 
-include "noctalia.kdl"
