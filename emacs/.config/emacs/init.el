@@ -119,6 +119,8 @@
 
 (use-package eglot
   :hook ((c-mode c++-mode c-ts-mode c++-ts-mode) . eglot-ensure)
+  :custom-face
+  (eglot-diagnostic-tag-unnecessary-face ((t nil)))
   :init
   (setq eglot-events-buffer-config '(:size nil :format full))
   :config
@@ -128,7 +130,12 @@
                '((c-mode c++-mode c-ts-mode c++-ts-mode)
                  . ("clangd")))
   (add-to-list 'eglot-server-programs
-               '(gdscript-mode . ("localhost" 6005))))
+               '(gdscript-mode . ("localhost" 6005)))
+  (add-to-list 'eglot-server-programs
+               '(lua-mode . ("/usr/libexec/lua-language-server/lua-language-server"
+                             "-E" "/usr/share/lua-language-server/main.lua"
+                             "--logpath=/home/terra/.cache/lua-language-server/log"
+                             "--metapath=/home/terra/.cache/lua-language-server/meta"))))
 
 (with-eval-after-load 'eglot
   (define-key eglot-mode-map (kbd "C-c b") #'eglot-format-buffer)
@@ -141,6 +148,15 @@
 (add-hook 'c++-mode-hook #'my/c-mode-setup)
 (add-hook 'c-ts-mode-hook #'my/c-mode-setup)
 (add-hook 'c++-ts-mode-hook #'my/c-mode-setup)
+
+(use-package lua-mode
+  :ensure t
+  :mode "\\.lua\\'"
+  :hook (lua-mode . eglot-ensure)
+  :config
+  (add-hook 'lua-mode-hook
+            (lambda ()
+              (add-hook 'before-save-hook #'eglot-format-buffer nil t))))
 
 (use-package cape
   :ensure t
@@ -449,9 +465,10 @@
    '(autothemer cape centaur-tabs clang-format consult corfu diff-hl
 		diminish elcord evil-collection evil-mc evil-multiedit
 		evil-nerd-commenter gdscript-mode general
-		highlight-indent-guides hl-todo ligature magit
-		marginalia markdown-mode orderless rainbow-delimiters
-		treemacs-evil undo-fu vertico yafolding)))
+		highlight-indent-guides hl-todo ligature
+		magit marginalia markdown-mode orderless
+		rainbow-delimiters treemacs-evil undo-fu vertico
+		yafolding)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
