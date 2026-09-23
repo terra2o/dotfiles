@@ -333,8 +333,9 @@
   :bind ("M-0" . treemacs-select-window)
   :config
   (setq treemacs-width 30
-	treemacs-no-png-images t
-	treemacs-move-files-by-mouse-dragging nil)
+        treemacs-no-png-images t
+        treemacs-move-files-by-mouse-dragging nil
+        treemacs-collapse-dirs 0)
   (unless (listp treemacs-ignored-file-predicates)
     (setq treemacs-ignored-file-predicates nil))
 
@@ -461,14 +462,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(autothemer cape centaur-tabs clang-format consult corfu diff-hl
-		diminish elcord evil-collection evil-mc evil-multiedit
-		evil-nerd-commenter gdscript-mode general
-		highlight-indent-guides hl-todo ligature
-		magit marginalia markdown-mode orderless
-		rainbow-delimiters treemacs-evil undo-fu vertico
-		yafolding)))
+ '(package-selected-packages nil)
+ '(package-vc-selected-packages
+   '((aperture :url "https://github.com/mattsawyer77/aperture.el"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
