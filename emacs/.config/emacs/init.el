@@ -52,10 +52,55 @@
 
 (use-package markdown-mode
   :ensure t
-  :mode ("README\\.md\\'" . gfm-mode)
-  :init (setq markdown-command "multimarkdown")
-  :bind (:map markdown-mode-map
-              ("C-c C-e" . markdown-do)))
+  :mode ("\\.md\\'" . markdown-mode)
+  :init
+  (setq markdown-hide-urls t
+        markdown-fontify-code-blocks-natively t
+        markdown-header-scaling t
+        markdown-header-scaling-values '(1.5 1.3 1.15 1.05 1.0 1.0)
+        markdown-hide-markup t) 
+  :config
+  (add-hook 'markdown-mode-hook #'markdown-display-inline-images)
+
+  (custom-set-faces
+   '(markdown-header-face-1 ((t (:inherit markdown-header-face :foreground "#fb4934" :weight bold))))
+   '(markdown-header-face-2 ((t (:inherit markdown-header-face :foreground "#fe8019" :weight bold))))
+   '(markdown-header-face-3 ((t (:inherit markdown-header-face :foreground "#fabd2f" :weight bold))))
+   '(markdown-header-face-4 ((t (:inherit markdown-header-face :foreground "#b8bb26" :weight bold))))
+   '(markdown-header-face-5 ((t (:inherit markdown-header-face :foreground "#8ec07c" :weight bold))))
+   '(markdown-header-face-6 ((t (:inherit markdown-header-face :foreground "#83a598" :weight bold)))))
+
+  (defvar-local my/markdown-active-line nil)
+
+  (defun my/markdown-unhide-line-font-lock (limit)
+    (when my/markdown-active-line
+      (save-excursion
+        (goto-char (point-min))
+        (forward-line (1- my/markdown-active-line))
+        (let ((beg (line-beginning-position))
+              (end (line-end-position)))
+          (when (and (<= beg limit) (>= end (point)))
+            (remove-text-properties (max beg (point)) (min end limit) '(invisible nil))))))
+    nil)
+
+  (defun my/markdown-reveal-on-movement ()
+    (let ((current-line (line-number-at-pos)))
+      (unless (equal my/markdown-active-line current-line)
+        (let ((old-line my/markdown-active-line))
+          (setq my/markdown-active-line current-line)
+          (when old-line
+            (save-excursion
+              (goto-char (point-min))
+              (forward-line (1- old-line))
+              (font-lock-flush (line-beginning-position) (line-end-position))))
+          (save-excursion
+            (font-lock-flush (line-beginning-position) (line-end-position)))))))
+
+  (font-lock-add-keywords 'markdown-mode '((my/markdown-unhide-line-font-lock)) t)
+  
+  (add-hook 'markdown-mode-hook
+            (lambda ()
+              (add-hook 'post-command-hook #'my/markdown-reveal-on-movement nil t))))
 
 (use-package gdscript-mode
   :ensure t
