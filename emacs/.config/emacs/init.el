@@ -13,9 +13,16 @@
       scroll-preserve-screen-position t)
 
 (setq inhibit-startup-message t
-      make-backup-files nil)
+      make-backup-files nil
+      create-lockfiles nil)
 
 (desktop-save-mode 1)
+(add-hook 'desktop-after-read-hook
+          (lambda ()
+            (dolist (buf (buffer-list))
+              (with-current-buffer buf
+                (when (and buffer-file-name (eq major-mode 'fundamental-mode))
+                  (normal-mode))))))
 
 (set-face-attribute 'default nil :font "JetBrains Mono-14")
 (tool-bar-mode -1)
@@ -163,7 +170,7 @@
   (diminish 'highlight-indent-guides-mode))
 
 (use-package eglot
-  :hook ((c-mode c++-mode c-ts-mode c++-ts-mode) . eglot-ensure)
+  :hook ((c-mode c++-mode c-ts-mode c++-ts-mode odin-mode odin-ts-mode) . eglot-ensure)
   :custom-face
   (eglot-diagnostic-tag-unnecessary-face ((t nil)))
   :init
@@ -174,6 +181,9 @@
   (add-to-list 'eglot-server-programs
                '((c-mode c++-mode c-ts-mode c++-ts-mode)
                  . ("clangd")))
+  (add-to-list 'eglot-server-programs
+               '((odin-mode odin-ts-mode)
+                 . ("ols")))
   (add-to-list 'eglot-server-programs
                '(gdscript-mode . ("localhost" 6005)))
   (add-to-list 'eglot-server-programs
@@ -202,6 +212,49 @@
   (add-hook 'lua-mode-hook
             (lambda ()
               (add-hook 'before-save-hook #'eglot-format-buffer nil t))))
+
+(unless (getenv "ODIN_ROOT")
+  (when (executable-find "odin")
+    (let ((root (string-trim (shell-command-to-string "odin root"))))
+      (when (file-directory-p root)
+        (setenv "ODIN_ROOT" root)))))
+
+(when (and (fboundp 'treesit-available-p) (treesit-available-p))
+  (require 'treesit)
+  (add-to-list 'treesit-language-source-alist
+               '(odin "https://github.com/tree-sitter-grammars/tree-sitter-odin"))
+  (unless (treesit-language-available-p 'odin)
+    (ignore-errors (treesit-install-language-grammar 'odin))))
+
+(use-package odin-mode
+  :vc (:url "https://github.com/mattt-b/odin-mode.git")
+  :init
+  (when (and (fboundp 'treesit-available-p) (treesit-available-p))
+    (add-to-list 'major-mode-remap-alist '(odin-mode . odin-ts-mode))))
+
+(use-package odin-ts-mode
+  :vc (:url "https://github.com/Sampie159/odin-ts-mode.git")
+  :mode "\\.odin\\'"
+  :custom
+  (odin-ts-mode-indent-offset 4)
+  :config
+  (defun my/odin-mode-setup ()
+    (setq-local tab-width 4)
+    (setq-local compile-command "odin run .")
+    (add-hook 'before-save-hook
+              (lambda ()
+                (when (and (fboundp 'eglot-managed-p)
+                           (eglot-managed-p))
+                  (eglot-format-buffer)))
+              nil t))
+
+  (add-hook 'odin-ts-mode-hook #'my/odin-mode-setup)
+  (add-hook 'odin-mode-hook #'my/odin-mode-setup))
+
+(with-eval-after-load 'compile
+  (add-to-list 'compilation-error-regexp-alist 'odin)
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(odin "^\\([^(\n]+\\)(\\([0-9]+\\):\\([0-9]+\\))" 1 2 3)))
 
 (use-package cape
   :ensure t
@@ -495,6 +548,9 @@
     "gb"  '(magit-blame :which-key "blame")
     "gl"  '(magit-log-buffer-file :which-key "file log")
     "gd"  '(magit-diff-dwim :which-key "diff")
+    "c"   '(:ignore t :which-key "code/compile")
+    "cc"  '(compile :which-key "compile")
+    "cr"  '(recompile :which-key "recompile")
     "o"   '(:ignore t :which-key "org")
     "oa"  '(org-agenda :which-key "agenda")
     "oc"  '(org-capture :which-key "capture")
@@ -510,7 +566,9 @@
  '(org-agenda-files nil)
  '(package-selected-packages nil)
  '(package-vc-selected-packages
-   '((aperture :url "https://github.com/mattsawyer77/aperture.el"))))
+   '((odin-mode :url "https://github.com/mattt-b/odin-mode.git")
+     (odin-ts-mode :url "https://github.com/Sampie159/odin-ts-mode.git")
+     (aperture :url "https://github.com/mattsawyer77/aperture.el"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
