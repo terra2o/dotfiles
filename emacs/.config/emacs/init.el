@@ -486,6 +486,15 @@
   (setq org-element-use-cache nil)
   (setq org-todo-keywords
         '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
+  (setq org-todo-keyword-faces
+        '(("TODO"      . (:foreground "#fb4934" :weight bold))
+          ("WAITING"   . (:foreground "#fe8019" :weight bold))
+          ("DONE"      . (:foreground "#b8bb26" :weight bold))
+          ("CANCELLED" . (:foreground "#928374" :strike-through t))))
+  (setq org-src-fontify-natively t
+        org-src-tab-acts-natively t
+        org-edit-src-content-indentation 2
+        org-src-preserve-indentation nil)
   :custom
   (org-directory "~/org")
   (org-default-notes-file (concat org-directory "/inbox.org"))
@@ -494,6 +503,17 @@
   (org-startup-folded 'content)
   (org-log-done 'time)
   :config
+  (custom-set-faces
+   '(org-level-1 ((t (:inherit default :weight bold :foreground "#fb4934" :height 1.3))))
+   '(org-level-2 ((t (:inherit default :weight bold :foreground "#fe8019" :height 1.2))))
+   '(org-level-3 ((t (:inherit default :weight bold :foreground "#fabd2f" :height 1.1))))
+   '(org-level-4 ((t (:inherit default :weight bold :foreground "#b8bb26" :height 1.05))))
+   '(org-level-5 ((t (:inherit default :weight bold :foreground "#8ec07c" :height 1.0))))
+   '(org-document-title ((t (:inherit default :weight bold :foreground "#d3869b" :height 1.4))))
+   '(org-block ((t (:background "#282828"))))
+   '(org-block-begin-line ((t (:foreground "#928374" :slant italic))))
+   '(org-block-end-line   ((t (:foreground "#928374" :slant italic)))))
+
   (evil-define-key '(normal visual) org-mode-map
     (kbd "TAB") #'org-cycle
     (kbd "<tab>") #'org-cycle
@@ -505,8 +525,29 @@
   :after org
   :hook (org-mode . org-modern-mode)
   :custom
-  (org-modern-star '("◉" "○" "◈" "◇"))
-  (org-modern-table nil))
+  (org-modern-star nil)
+  (org-modern-table t))
+
+(use-package org-superstar
+  :ensure t
+  :after org
+  :hook (org-mode . org-superstar-mode))
+
+(use-package org-appear
+  :ensure t
+  :after org
+  :hook (org-mode . org-appear-mode)
+  :custom
+  (org-appear-autoemphasis t)
+  (org-appear-autosubmarkers t)
+  (org-appear-autoentities t)
+  (org-appear-autolinks t))
+
+(use-package olivetti
+  :ensure t
+  :hook (org-mode . olivetti-mode)
+  :custom
+  (olivetti-body-width 100))
 
 (use-package general
   :ensure t
