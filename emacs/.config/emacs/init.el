@@ -34,6 +34,8 @@
 
 (set-fringe-mode '(12 . 12))
 
+(add-to-list 'default-frame-alist '(alpha-background . 90))
+
 (global-set-key (kbd "C-+") #'text-scale-increase)
 (global-set-key (kbd "C-=") #'text-scale-increase)
 (global-set-key (kbd "C--") #'text-scale-decrease)
