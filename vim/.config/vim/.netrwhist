@@ -1,0 +1,9 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =7
+let g:netrw_dirhist_7='/home/terra/dotfiles'
+let g:netrw_dirhist_6='/home/terra/dotfiles/vim/.config/vim'
+let g:netrw_dirhist_5='/home/terra/dotfiles/vim/.config'
+let g:netrw_dirhist_4='/home/terra/dotfiles/vim'
+let g:netrw_dirhist_3='/home/terra/Desktop'
+let g:netrw_dirhist_2='/home/terra'
+let g:netrw_dirhist_1='/home/terra/notes/uni-ELT/AIIT101'

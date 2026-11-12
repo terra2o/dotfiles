@@ -1,0 +1,236 @@
+" ==============================================================================
+" General & Performance Settings
+" ==============================================================================
+set nocompatible
+filetype plugin indent on
+syntax enable
+
+" Encoding & rendering
+set encoding=utf-8
+set fileencoding=utf-8
+set termguicolors
+set background=dark
+
+" Colorscheme (gruvbox clone built into modern Vim)
+silent! colorscheme retrobox
+
+" Line numbering & spacing
+set number
+set relativenumber
+set cursorline
+set scrolloff=8
+set sidescrolloff=8
+
+" Indentation defaults (C/C++ & Odin 4 spaces, tabs for GDScript handled below)
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set autoindent
+set smartindent
+
+" UI & Splits
+set splitright
+set splitbelow
+set signcolumn=yes
+set laststatus=2
+set showcmd
+set wildmenu
+set wildmode=longest:full,full
+set mouse=a
+set updatetime=250
+
+" Searching
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
+
+" Backups & Swap
+set nobackup
+set nowritebackup
+set noswapfile
+
+" Persistent undo
+if has('persistent_undo')
+    let s:undo_dir = expand('~/.config/vim/undo')
+    if !isdirectory(s:undo_dir)
+        call mkdir(s:undo_dir, 'p', 0700)
+    endif
+    let &undodir = s:undo_dir
+    set undofile
+endif
+
+" Netrw / file-drawer settings
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_winsize = 25
+let g:netrw_altv = 1
+
+" Ripgrep integration
+if executable('rg')
+    set grepprg=rg\ --vimgrep\ --smart-case\ --hidden
+    set grepformat=%f:%l:%c:%m
+endif
+
+" ==============================================================================
+" Leader Key & Navigation Bindings (Mirrors general.el / consult / vertico)
+" ==============================================================================
+let mapleader = " "
+let maplocalleader = " "
+
+" Fast buffer search & project grep
+nnoremap <silent> <leader><leader> :silent grep! ""<Left>
+nnoremap <silent> <leader>/        /
+
+" File operations
+nnoremap <silent> <leader>ff :find *
+nnoremap <silent> <leader>fs :w<CR>
+
+" Buffer navigation
+nnoremap <silent> <leader>bb :buffers<CR>:b<Space>
+nnoremap <silent> <leader>bk :bdelete<CR>
+nnoremap <silent> <leader>bn :bnext<CR>
+nnoremap <silent> <leader>bp :bprevious<CR>
+
+" Window management (mirrors Emacs SPC w ...)
+nnoremap <silent> <leader>wv :vsplit<CR>
+nnoremap <silent> <leader>ws :split<CR>
+nnoremap <silent> <leader>wc :close<CR>
+nnoremap <silent> <leader>wh <C-w>h
+nnoremap <silent> <leader>wj <C-w>j
+nnoremap <silent> <leader>wk <C-w>k
+nnoremap <silent> <leader>wl <C-w>l
+
+" File drawer (mirrors treemacs: SPC e e, and M-0)
+nnoremap <silent> <leader>ee :Lexplore<CR>
+nnoremap <silent> <M-0>      :Lexplore<CR>
+
+" Tabs (mirrors centaur-tabs: SPC t n, SPC t p)
+nnoremap <silent> <leader>tn :tabnext<CR>
+nnoremap <silent> <leader>tp :tabprevious<CR>
+
+" Search (mirrors consult search: SPC s ...)
+nnoremap <silent> <leader>sp :silent grep! ""<Left>
+nnoremap <silent> <leader>sd :find *
+nnoremap <silent> <leader>sl :silent vimgrep // %<Left><Left>
+
+" Code / Build (mirrors compile: SPC c c, SPC c r)
+nnoremap <silent> <leader>cc :make<CR>
+nnoremap <silent> <leader>cr :make!<CR>
+
+" Git (mirrors magit shortcuts)
+nnoremap <silent> <leader>gg :vertical Git<CR>
+nnoremap <silent> <leader>gb :Git blame<CR>
+
+" Reload configuration (mirrors SPC h r)
+nnoremap <silent> <leader>hr :source ~/.config/vim/vimrc<CR>:echo "vimrc reloaded"<CR>
+
+" Clear highlight
+nnoremap <silent> <Esc> :nohlsearch<CR><Esc>
+
+" ==============================================================================
+" Editing Keybindings (Mirrors evil, evil-nerd-commenter, folding)
+" ==============================================================================
+" Comment line toggle (gcc) and visual comment (gc)
+nnoremap <silent> gcc :call <SID>ToggleComment()<CR>
+vnoremap <silent> gc  :call <SID>ToggleCommentVisual()<CR>
+
+function! s:ToggleComment() abort
+    let l:cms = substitute(&commentstring, '%s', '', '')
+    let l:trim = substitute(l:cms, '\s', '', 'g')
+    if l:trim ==# '' | return | endif
+    let l:line = getline('.')
+    if l:line =~ '^\s*' . escape(l:trim, '/*#~')
+        let l:pat = '^\(\s*\)' . escape(l:cms, '/*#~') . '\s\?'
+        call setline('.', substitute(l:line, l:pat, '\1', ''))
+    else
+        let l:pat = '^\(\s*\)'
+        call setline('.', substitute(l:line, l:pat, '\1' . escape(l:cms, '/*#~') . ' ', ''))
+    endif
+endfunction
+
+function! s:ToggleCommentVisual() abort range
+    let l:cms = substitute(&commentstring, '%s', '', '')
+    let l:trim = substitute(l:cms, '\s', '', 'g')
+    if l:trim ==# '' | return | endif
+    for l:lnum in range(a:firstline, a:lastline)
+        let l:line = getline(l:lnum)
+        if l:line =~ '^\s*' . escape(l:trim, '/*#~')
+            let l:pat = '^\(\s*\)' . escape(l:cms, '/*#~') . '\s\?'
+            call setline(l:lnum, substitute(l:line, l:pat, '\1', ''))
+        else
+            let l:pat = '^\(\s*\)'
+            call setline(l:lnum, substitute(l:line, l:pat, '\1' . escape(l:cms, '/*#~') . ' ', ''))
+        endif
+    endfor
+endfunction
+
+" ==============================================================================
+" Code Formatting & Language Hooks (Mirrors eglot / clang-format / odin / gd)
+" ==============================================================================
+function! s:ClangFormatBuffer() abort
+    if executable('clang-format')
+        let l:view = winsaveview()
+        %!clang-format
+        call winrestview(l:view)
+    endif
+endfunction
+
+function! s:OdinFormatBuffer() abort
+    if executable('odin')
+        let l:view = winsaveview()
+        %!odin format -stdin
+        call winrestview(l:view)
+    endif
+endfunction
+
+" C / C++ setup
+augroup CModeSetup
+    autocmd!
+    autocmd FileType c,cpp setlocal cindent cinoptions=:0,g0,(0,t0
+    autocmd FileType c,cpp nnoremap <buffer> <C-c>b :call <SID>ClangFormatBuffer()<CR>
+    autocmd FileType c,cpp nnoremap <buffer> <C-c>f :call <SID>ClangFormatBuffer()<CR>
+    autocmd BufWritePre *.c,*.cpp,*.h,*.hpp,*.cppm call <SID>ClangFormatBuffer()
+augroup END
+
+" Odin setup
+augroup OdinModeSetup
+    autocmd!
+    autocmd BufNewFile,BufRead *.odin setfiletype odin
+    autocmd FileType odin setlocal tabstop=4 shiftwidth=4 noexpandtab
+    autocmd FileType odin setlocal makeprg=odin\ run\ .
+    autocmd FileType odin setlocal errorformat=%f(%l:%c)\ %m
+    autocmd FileType odin nnoremap <buffer> <C-c>b :call <SID>OdinFormatBuffer()<CR>
+    autocmd BufWritePre *.odin silent! call <SID>OdinFormatBuffer()
+augroup END
+
+" GDScript setup
+augroup GDScriptModeSetup
+    autocmd!
+    autocmd BufNewFile,BufRead *.gd setfiletype gdscript
+    autocmd FileType gdscript setlocal noexpandtab tabstop=4 shiftwidth=4
+augroup END
+
+" Lua setup
+augroup LuaModeSetup
+    autocmd!
+    autocmd FileType lua setlocal tabstop=4 shiftwidth=4 expandtab
+augroup END
+
+" Markdown headers styling (mirrors gruvbox rainbow headers)
+augroup MarkdownColors
+    autocmd!
+    autocmd FileType markdown syn match htmlH1 "^#\s.*$"
+    autocmd FileType markdown syn match htmlH2 "^##\s.*$"
+    autocmd FileType markdown syn match htmlH3 "^###\s.*$"
+    autocmd FileType markdown syn match htmlH4 "^####\s.*$"
+    autocmd FileType markdown syn match htmlH5 "^#####\s.*$"
+    autocmd FileType markdown syn match htmlH6 "^######\s.*$"
+    autocmd FileType markdown hi htmlH1 guifg=#fb4934 gui=bold
+    autocmd FileType markdown hi htmlH2 guifg=#fe8019 gui=bold
+    autocmd FileType markdown hi htmlH3 guifg=#fabd2f gui=bold
+    autocmd FileType markdown hi htmlH4 guifg=#b8bb26 gui=bold
+    autocmd FileType markdown hi htmlH5 guifg=#8ec07c gui=bold
+    autocmd FileType markdown hi htmlH6 guifg=#83a598 gui=bold
+augroup END
