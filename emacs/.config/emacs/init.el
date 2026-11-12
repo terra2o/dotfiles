@@ -1,3 +1,23 @@
+;;; init.el --- emacs configuration -*- lexical-binding: t; -*-
+
+;; silence missing lexical-binding warnings from third-party/system files
+(require 'warnings)
+(require 'seq)
+(add-to-list 'warning-suppress-types '(files missing-lexbind-cookie))
+(add-to-list 'warning-suppress-log-types '(files missing-lexbind-cookie))
+(setq delayed-warnings-list
+      (seq-remove (lambda (w)
+                    (and (listp (car w))
+                         (equal (take 2 (car w)) '(files missing-lexbind-cookie))))
+                  delayed-warnings-list))
+(when (get-buffer "*Warnings*")
+  (kill-buffer "*Warnings*"))
+
+;; custom file settings
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+
 (require 'package)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -34,7 +54,7 @@
 
 (set-fringe-mode '(12 . 12))
 
-(add-to-list 'default-frame-alist '(alpha-background . 90))
+(add-to-list 'default-frame-alist '(alpha-background . 100))
 
 (global-set-key (kbd "C-+") #'text-scale-increase)
 (global-set-key (kbd "C-=") #'text-scale-increase)
@@ -55,9 +75,6 @@
   (with-eval-after-load 'cc-mode
     (define-key c-mode-base-map (kbd "C-c f") #'clang-format-region)
     (define-key c-mode-base-map (kbd "C-c b") #'clang-format-buffer)))
-
-(use-package cc-mode
-  :mode ("\\.cppm\\'" . c++-mode))
 
 (use-package markdown-mode
   :ensure t
@@ -319,7 +336,6 @@
   (doom-themes-enable-italic t)
   (doom-themes-treemacs-theme "doom-gruvbox")
   :config
-  (load-theme 'doom-one t)
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
   (doom-themes-treemacs-config))
@@ -419,13 +435,23 @@
 
 (use-package magit
   :ensure t
-  :bind ("C-x g" . magit-status))
+  :after evil-collection
+  :bind ("C-x g" . magit-status)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
+  (magit-bury-buffer-function #'magit-restore-window-configuration)
+  (magit-diff-refine-hunk 'all)
+  :config
+  (add-hook 'git-commit-setup-hook #'turn-on-flyspell))
 
 (use-package diff-hl
   :ensure t
   :hook ((prog-mode text-mode) . turn-on-diff-hl-mode)
   :config
-  (diff-hl-flydiff-mode 1))
+  (diff-hl-flydiff-mode 1)
+  (with-eval-after-load 'magit
+    (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
+    (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)))
 
 (use-package treemacs
   :ensure t
@@ -482,7 +508,10 @@
   :ensure nil
   :defer nil
   :hook ((org-mode . visual-line-mode)
-         (org-mode . org-indent-mode))
+         (org-mode . org-indent-mode)
+         (org-mode . (lambda ()
+                       (electric-indent-local-mode -1)
+                       (setq-local evil-auto-indent nil))))
   :init
   ;; stop the org element parser cache from throwing errors in active buffers
   (setq org-element-use-cache nil)
@@ -529,11 +558,6 @@
   :custom
   (org-modern-star nil)
   (org-modern-table t))
-
-(use-package org-superstar
-  :ensure t
-  :after org
-  :hook (org-mode . org-superstar-mode))
 
 (use-package org-appear
   :ensure t
@@ -601,20 +625,4 @@
     "ot"  '(org-todo :which-key "todo state")
     "oe"  '(org-export-dispatch :which-key "export")))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-agenda-files nil)
- '(package-selected-packages nil)
- '(package-vc-selected-packages
-   '((odin-mode :url "https://github.com/mattt-b/odin-mode.git")
-     (odin-ts-mode :url "https://github.com/Sampie159/odin-ts-mode.git")
-     (aperture :url "https://github.com/mattsawyer77/aperture.el"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
